@@ -263,10 +263,17 @@ function formatDate(date: Date) {
     requestAnimationFrame(loop);
   })();
 
-  const ov=document.querySelector('.entry-overlay') as HTMLElement;
-  ov?.addEventListener('animationend',()=>ov.remove(),{once:true});
-
-  const DELAY=1150;
-  setTimeout(()=>document.getElementById('header')?.classList.add('visible'),DELAY);
-  setTimeout(()=>document.getElementById('content')?.classList.add('visible'),DELAY+200);
+  const VISITED_KEY = 'bl-visited-exploreing';
+  const ov = document.querySelector('.entry-overlay') as HTMLElement;
+  if (sessionStorage.getItem(VISITED_KEY)) {
+    ov?.remove();
+    document.getElementById('header')?.classList.add('visible');
+    document.getElementById('content')?.classList.add('visible');
+  } else {
+    sessionStorage.setItem(VISITED_KEY, '1');
+    ov?.addEventListener('animationend', () => ov.remove(), { once: true });
+    const DELAY = 1150;
+    setTimeout(() => document.getElementById('header')?.classList.add('visible'), DELAY);
+    setTimeout(() => document.getElementById('content')?.classList.add('visible'), DELAY + 200);
+  }
 </script>

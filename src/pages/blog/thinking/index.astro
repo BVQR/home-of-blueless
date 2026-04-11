@@ -1,15 +1,303 @@
 ---
-import { getCollection } from 'astro:content';
-const posts = await getCollection('thinking');
-posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
-if (posts.length > 0) {
-  return Astro.redirect(`/blog/thinking/${posts[0].id}`);
+import { getCollection, render } from 'astro:content';
+import Layout from '../../../layouts/Layout.astro';
+import BlogSidebar from '../../../components/BlogSidebar.astro';
+
+const allPosts = await getCollection('thinking');
+allPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const post = allPosts[0];
+
+let Content: any = null;
+if (post) {
+  const rendered = await render(post);
+  Content = rendered.Content;
+}
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 ---
-<!doctype html>
-<html lang="zh-CN">
-<head><meta charset="UTF-8"><title>思考 · BL Blog</title></head>
-<body style="background:rgba(205,220,248,0.95);color:rgba(30,50,100,0.8);display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;letter-spacing:0.1em;">
-  暂无文章 · <a href="/blog" style="color:#6c9ee8;margin-left:0.5rem">返回博客</a>
-</body>
-</html>
+
+{!post && (
+  <html lang="zh-CN">
+  <head><meta charset="UTF-8"><title>思考 · BL Blog</title></head>
+  <body style="background:rgba(205,220,248,0.95);color:rgba(30,50,100,0.8);display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;letter-spacing:0.1em;">
+    暂无文章 · <a href="/blog" style="color:#6c9ee8;margin-left:0.5rem">返回博客</a>
+  </body>
+  </html>
+)}
+{post && (
+  <Layout title={`${post.data.title} · BL Blog`}>
+    <canvas id="float-canvas" aria-hidden="true"></canvas>
+    <div class="entry-overlay" aria-hidden="true"></div>
+    <div class="page-bg" aria-hidden="true">
+      <div class="bg-orb bg-orb-1"></div>
+      <div class="bg-orb bg-orb-2"></div>
+    </div>
+
+    <header class="top-bar reveal-fade" id="header">
+      <div class="left-bar">
+        <div class="page-icon" aria-label="思考">
+          <svg viewBox="0 0 28 26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="14" y1="4" x2="14" y2="22"/>
+            <path d="M14 4C11 2 6.5 2.5 5 5.5S4 11 6 12.5C4 13.5 3.5 16 5 18S9 20 11 19.5"/>
+            <path d="M6 12.5C8 12 10 13.5 10.5 12"/>
+            <path d="M14 4C17 2 21.5 2.5 23 5.5S24 11 22 12.5C24 13.5 24.5 16 23 18S19 20 17 19.5"/>
+            <path d="M22 12.5C20 12 18 13.5 17.5 12"/>
+            <path d="M11 19.5C12 21.5 12.5 22 14 22"/>
+            <path d="M17 19.5C16 21.5 15.5 22 14 22"/>
+          </svg>
+        </div>
+        <a href="/" class="home-btn" aria-label="返回主页">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 10L10 3l7 7M5 8.5V17h4v-4h2v4h4V8.5"/>
+          </svg>
+          <span>主页</span>
+        </a>
+      </div>
+      <button class="sb-toggle-btn" id="sb-toggle" aria-label="打开目录">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="3" y1="6" x2="17" y2="6"/>
+          <line x1="3" y1="10" x2="17" y2="10"/>
+          <line x1="3" y1="14" x2="17" y2="14"/>
+        </svg>
+        <span>目录</span>
+      </button>
+    </header>
+
+    <BlogSidebar posts={allPosts} currentSlug={post.id} basePath="/blog/thinking" categoryName="思考" />
+
+    <main class="content-main reveal-fade" id="content">
+      <article class="prose">
+        <h1 class="article-title">{post.data.title}</h1>
+        <div class="article-meta">
+          <time>{formatDate(post.data.date)}</time>
+          {post.data.tags.map(tag => <span class="meta-tag">{tag}</span>)}
+        </div>
+        <div class="article-divider" aria-hidden="true"></div>
+        <div class="prose-body">
+          <Content />
+        </div>
+      </article>
+    </main>
+  </Layout>
+)}
+
+<style>
+  :root {
+    --t1: #edf2fb; --t2: #e2eafc; --t3: #d7e3fc; --t4: #ccdbfd;
+    --t5: #c1d3fe; --t6: #b6ccfe; --t7: #abc4ff;
+    --bg-deep: #c8d8f8;
+    --text-light: rgba(25, 45, 90, 0.92);
+    --text-dim:   rgba(60, 90, 160, 0.65);
+    --sb-bg:            rgba(200, 220, 248, 0.6);
+    --sb-border:        rgba(100, 150, 220, 0.22);
+    --sb-header-color:  rgba(30, 50, 100, 0.85);
+    --sb-text:          rgba(30, 50, 100, 0.88);
+    --sb-text-dim:      rgba(60, 90, 160, 0.6);
+    --sb-tag-bg:        rgba(100, 150, 220, 0.12);
+    --sb-tag-border:    rgba(100, 150, 220, 0.22);
+    --sb-tag-text:      rgba(50, 80, 150, 0.8);
+    --sb-active-bg:     rgba(100, 150, 220, 0.2);
+    --sb-active-border: #6c9ee8;
+    --sb-hover-bg:      rgba(100, 150, 220, 0.1);
+    --sb-scrollbar:     rgba(100, 150, 220, 0.25);
+  }
+
+  #float-canvas {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  }
+
+  .entry-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    background: linear-gradient(150deg, var(--t7) 0%, var(--t5) 50%, var(--t3) 100%);
+    pointer-events: none;
+    animation: overlayFade 0.85s cubic-bezier(0.76,0,0.24,1) 0.3s forwards;
+  }
+  @keyframes overlayFade {
+    0%   { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-8%); }
+  }
+
+  .page-bg {
+    position: fixed; inset: 0; z-index: -1;
+    background: linear-gradient(160deg, var(--t2) 0%, var(--t5) 60%, var(--t7) 100%);
+    overflow: hidden;
+  }
+  .bg-orb { position: absolute; border-radius: 50%; filter: blur(120px); }
+  .bg-orb-1 {
+    width: 60vw; height: 60vw;
+    background: radial-gradient(circle, var(--t1), var(--t5), transparent);
+    top: -20%; right: -15%; opacity: 0.7;
+    animation: tBob1 17s ease-in-out infinite;
+  }
+  .bg-orb-2 {
+    width: 50vw; height: 50vw;
+    background: radial-gradient(circle, var(--t7), var(--t4), transparent);
+    bottom: -10%; left: -10%; opacity: 0.6;
+    animation: tBob2 21s ease-in-out infinite;
+  }
+  @keyframes tBob1 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-6vw,7vh); } }
+  @keyframes tBob2 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(5vw,-6vh); } }
+
+  .reveal-fade {
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1);
+  }
+  .reveal-fade.visible { opacity: 1; transform: none; }
+
+  .top-bar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 1.8rem;
+    background: rgba(200, 220, 250, 0.5);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(100, 150, 220, 0.22);
+  }
+
+  .left-bar { display: flex; align-items: center; gap: 1rem; }
+
+  .page-icon { color: var(--text-dim); opacity: 0.85; }
+  .page-icon svg { width: 1.65rem; height: 1.55rem; }
+
+  .home-btn {
+    display: flex; align-items: center; gap: .45rem;
+    font-size: .85rem; font-weight: 500; letter-spacing: .04em;
+    color: var(--text-dim);
+    transition: color .25s ease, transform .25s ease;
+  }
+  .home-btn svg { width: 1.1rem; height: 1.1rem; }
+  .home-btn:hover { color: var(--text-light); transform: translateX(-3px); }
+
+  .sb-toggle-btn {
+    display: none; align-items: center; gap: 0.4rem;
+    padding: 0.4rem 0.9rem; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.06em;
+    color: var(--text-dim); background: rgba(100,150,220,0.1);
+    border: 1px solid rgba(100,150,220,0.2); border-radius: 100px;
+    cursor: pointer; transition: color 0.2s, background 0.2s;
+  }
+  .sb-toggle-btn svg { width: 1rem; height: 1rem; }
+  .sb-toggle-btn:hover { color: var(--text-light); background: rgba(100,150,220,0.18); }
+
+  .content-main {
+    margin-left: 260px; min-height: 100svh;
+    padding: 7rem 4rem 4rem 3.5rem;
+    position: relative; z-index: 1;
+    display: flex; justify-content: center;
+  }
+
+  .prose { width: 100%; max-width: 720px; }
+
+  .article-title {
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 700;
+    color: var(--text-light); letter-spacing: -0.02em; line-height: 1.25;
+    margin-bottom: 0.8rem;
+  }
+
+  .article-meta {
+    display: flex; align-items: center; gap: 0.5rem;
+    flex-wrap: wrap; margin-bottom: 1.5rem;
+  }
+  .article-meta time { font-size: 0.8rem; color: var(--text-dim); letter-spacing: 0.04em; }
+  .meta-tag {
+    font-size: 0.68rem; padding: 0.15rem 0.55rem;
+    background: var(--sb-tag-bg); border: 1px solid var(--sb-tag-border);
+    border-radius: 999px; color: var(--sb-tag-text);
+  }
+
+  .article-divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--sb-active-border), transparent);
+    margin-bottom: 2rem; opacity: 0.45;
+  }
+
+  .prose-body { font-size: 1.05rem; line-height: 1.9; color: var(--text-dim); letter-spacing: 0.01em; }
+  .prose-body :global(h2) { font-size: 1.45rem; font-weight: 600; color: var(--text-light); margin-top: 2.5rem; margin-bottom: 0.8rem; }
+  .prose-body :global(h3) { font-size: 1.2rem; font-weight: 600; color: var(--text-light); margin-top: 2rem; margin-bottom: 0.6rem; }
+  .prose-body :global(p) { margin-bottom: 1.4rem; }
+  .prose-body :global(ul), .prose-body :global(ol) { padding-left: 1.5rem; margin-bottom: 1.4rem; }
+  .prose-body :global(li) { margin-bottom: 0.4rem; }
+  .prose-body :global(blockquote) {
+    border-left: 3px solid var(--sb-active-border); padding: 0.5rem 1rem;
+    margin: 1.5rem 0; opacity: 0.8; font-style: italic;
+  }
+  .prose-body :global(code) { background: rgba(0,0,0,0.06); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.88em; }
+  .prose-body :global(pre) {
+    background: rgba(0,0,0,0.06); border: 1px solid rgba(100,150,220,0.2);
+    border-radius: 10px; padding: 1.2rem 1.5rem; overflow-x: auto; margin-bottom: 1.5rem;
+  }
+  .prose-body :global(pre code) { background: none; padding: 0; }
+  .prose-body :global(a) { color: var(--sb-active-border); text-decoration: underline; text-underline-offset: 3px; }
+  .prose-body :global(hr) { border: none; border-top: 1px solid rgba(100,150,220,0.25); margin: 2.5rem 0; }
+  .prose-body :global(strong) { color: var(--text-light); font-weight: 600; }
+  .prose-body :global(img) { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
+
+  @media (max-width: 860px) {
+    .content-main { margin-left: 0; padding: 6rem 1.5rem 3rem; }
+    .sb-toggle-btn { display: flex; }
+  }
+  @media (max-width: 560px) { .article-title { font-size: 1.5rem; } }
+</style>
+
+<script>
+  const canvas = document.getElementById('float-canvas') as HTMLCanvasElement;
+  if (canvas) {
+    const ctx = canvas.getContext('2d')!;
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize(); window.addEventListener('resize', resize);
+
+    interface FloatDot { x:number;y:number;r:number;opacity:number;vy:number;vx:number;life:number;maxLife:number; }
+    const dots: FloatDot[] = [];
+
+    function spawnDot(initial=false): FloatDot {
+      const maxLife=Math.random()*360+200;
+      return {
+        x: Math.random()*canvas.width,
+        y: initial ? Math.random()*canvas.height : canvas.height+20,
+        r: Math.random()*5+2,
+        opacity: initial ? Math.random()*0.15 : 0,
+        vx: (Math.random()-0.5)*0.25,
+        vy: -(Math.random()*0.45+0.15),
+        life: initial ? Math.floor(Math.random()*maxLife*0.4) : 0,
+        maxLife,
+      };
+    }
+
+    for(let i=0;i<40;i++) dots.push(spawnDot(true));
+
+    (function loop(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for(let i=dots.length-1;i>=0;i--){
+        const d=dots[i];
+        d.x+=d.vx; d.y+=d.vy; d.life++;
+        const progress=d.life/d.maxLife;
+        if(progress<0.25){d.opacity+=0.0012;}
+        else if(progress>0.7){d.opacity-=0.001;}
+        if(d.opacity<=0&&progress>0.5){dots.splice(i,1);dots.push(spawnDot(false));continue;}
+        const g=ctx.createRadialGradient(d.x,d.y,0,d.x,d.y,d.r*2);
+        g.addColorStop(0,`rgba(80,120,200,${d.opacity})`);
+        g.addColorStop(0.6,`rgba(100,150,220,${d.opacity*0.5})`);
+        g.addColorStop(1,`rgba(130,170,240,0)`);
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(d.x,d.y,d.r*2,0,Math.PI*2); ctx.fill();
+      }
+      while(dots.length<40) dots.push(spawnDot(false));
+      requestAnimationFrame(loop);
+    })();
+
+    const VISITED_KEY = 'bl-visited-thinking';
+    const ov = document.querySelector('.entry-overlay') as HTMLElement;
+    if (sessionStorage.getItem(VISITED_KEY)) {
+      ov?.remove();
+      document.getElementById('header')?.classList.add('visible');
+      document.getElementById('content')?.classList.add('visible');
+    } else {
+      sessionStorage.setItem(VISITED_KEY, '1');
+      ov?.addEventListener('animationend', () => ov.remove(), { once: true });
+      const DELAY = 1150;
+      setTimeout(() => document.getElementById('header')?.classList.add('visible'), DELAY);
+      setTimeout(() => document.getElementById('content')?.classList.add('visible'), DELAY + 200);
+    }
+  }
+</script>
