@@ -2,7 +2,7 @@ backend:
   name: github
   repo: BVQR/home-of-blueless
   branch: master
-  base_url: https://api.sveltia.app
+  base_url: https://blueless-oauth.zhaobohan136199.workers.dev
 
 media_folder: public/images/blog
 public_folder: /images/blog
