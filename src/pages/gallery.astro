@@ -1,0 +1,271 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Blueless的照片墙 | BL Blog">
+  <link slot="head" rel="preconnect" href="https://fonts.googleapis.com" />
+  <link slot="head" rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link slot="head" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" />
+
+  <!-- 动态渐变背景 -->
+  <div class="page-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- 右上角主页按钮 -->
+  <a href="/" class="home-btn layer-item" id="home">主页</a>
+
+  <!-- 主内容区 -->
+  <div class="page-content">
+
+    <!-- 标题区域：右对齐 -->
+    <section class="slogan-section">
+      <div class="slogan-container">
+        <h1 class="slogan-1 layer-item" id="s1">Blueless的照片墙</h1>
+        <p class="subtitle layer-item" id="subtitle">——屋内自娱自乐的角落</p>
+      </div>
+    </section>
+
+    <!-- 相册导航按钮 -->
+    <section class="nav-section layer-item" id="nav">
+      <div class="nav-grid">
+        <a href="/gallery/photos" class="nav-btn btn-photos">
+          <span class="btn-emoji" aria-hidden="true">📷</span>
+          <span>快门瞬息</span>
+        </a>
+        <a href="/gallery/furry" class="nav-btn btn-furry">
+          <span class="btn-emoji" aria-hidden="true">🐺</span>
+          <span>幻梦之间</span>
+        </a>
+      </div>
+    </section>
+
+  </div>
+</Layout>
+
+<style>
+  :root {
+    --c1: #31572c;
+    --c2: #4f772d;
+    --c3: #90a955;
+    --c4: #ecf39e;
+    --bg-dark: #0d1a09;
+  }
+
+  .page-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--bg-dark);
+    overflow: hidden;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+  }
+
+  .orb-1 {
+    width: 65vw; height: 65vw;
+    background: radial-gradient(circle, var(--c2) 0%, var(--c1) 60%, transparent 100%);
+    top: -20%; right: -15%;
+    opacity: 0.6;
+    animation: float1 14s ease-in-out infinite;
+  }
+
+  .orb-2 {
+    width: 50vw; height: 50vw;
+    background: radial-gradient(circle, var(--c1) 0%, transparent 100%);
+    bottom: -15%; left: -10%;
+    opacity: 0.55;
+    animation: float2 18s ease-in-out infinite;
+  }
+
+  .orb-3 {
+    width: 28vw; height: 28vw;
+    background: radial-gradient(circle, var(--c3), var(--c4), transparent);
+    top: 42%; left: 36%;
+    opacity: 0.2;
+    animation: float3 11s ease-in-out infinite;
+  }
+
+  @keyframes float1 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%     { transform: translate(-4vw, 6vh) scale(1.08); }
+    66%     { transform: translate(3vw, -4vh) scale(0.94); }
+  }
+  @keyframes float2 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(6vw, -6vh) scale(1.12); }
+  }
+  @keyframes float3 {
+    0%,100% { transform: translate(0,0); opacity: .2; }
+    50%     { transform: translate(-3vw, 4vh); opacity: .32; }
+  }
+
+  /* 分层渐显 */
+  .layer-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity  0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .layer-item.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .home-btn {
+    position: fixed;
+    top: 1.4rem;
+    right: 1.6rem;
+    z-index: 100;
+    padding: 0.45rem 1.2rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.75);
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 100px;
+    text-decoration: none;
+    transition: color 0.3s ease, background 0.3s ease;
+  }
+
+  .home-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.14);
+  }
+
+  .page-content {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0 1.5rem 4rem;
+    color: #fff;
+  }
+
+  /* 标题区域：左对齐 */
+  .slogan-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 960px;
+    padding-top: 14vh;
+    padding-bottom: 4vh;
+    justify-content: flex-start;
+  }
+
+  .slogan-container {
+    text-align: left;
+  }
+
+  .slogan-1 {
+    font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-size: clamp(2.2rem, 7.5vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    color: #fff;
+    text-shadow: 0 0 100px rgba(79, 119, 45, 0.48);
+  }
+
+  .subtitle {
+    margin-top: 1.2rem;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0.1em;
+    color: rgba(236, 243, 158, 0.65);
+  }
+
+  .nav-section {
+    width: 100%;
+    max-width: 100%; /* 扩展到整行，便于偏右对齐 */
+    padding: 1rem 0 2rem 0;
+    display: flex;
+    justify-content: flex-end; /* 将按钮向右侧靠齐 */
+    padding-right: clamp(1rem, 8vw, 6rem); /* 在大屏上为按钮留出向右的视觉空间 */
+  }
+
+  .nav-grid {
+    display: flex;
+    gap: 3.5rem; /* 增大按钮间距 */
+    flex-wrap: wrap;
+    justify-content: flex-end; /* 偏向右侧 */
+  }
+
+  .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 1.2rem 2.6rem;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(14px) saturate(1.5);
+    -webkit-backdrop-filter: blur(14px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 100px;
+    text-decoration: none;
+    box-shadow:
+      0 6px 24px rgba(0,0,0,.3),
+      0 1px 0 rgba(255,255,255,.08) inset;
+    transition:
+      transform    0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow   0.35s ease,
+      border-color 0.35s ease,
+      background   0.35s ease;
+  }
+
+  .btn-emoji {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .btn-photos:hover {
+    transform: translateY(-6px) scale(1.04);
+    box-shadow: 0 18px 44px rgba(79, 119, 45, 0.38), 0 6px 20px rgba(0,0,0,.4);
+    border-color: rgba(79, 119, 45, 0.52);
+    background: rgba(79, 119, 45, 0.12);
+  }
+
+  .btn-furry:hover {
+    transform: translateY(-6px) scale(1.04);
+    box-shadow: 0 18px 44px rgba(144, 169, 85, 0.38), 0 6px 20px rgba(0,0,0,.4);
+    border-color: rgba(144, 169, 85, 0.52);
+    background: rgba(144, 169, 85, 0.1);
+  }
+
+  @media (max-width: 560px) {
+    .nav-grid { justify-content: center; } /* 小屏居中 */
+    .nav-btn { padding: 0.75rem 1.6rem; font-size: 0.95rem; }
+  }
+</style>
+
+<script>
+  /* 分层渐显：页面加载后立即按层级依次触发，delay 控制在 150ms 以内 */
+  function show(selector: string, delay: number) {
+    setTimeout(() => {
+      document.querySelector(selector)?.classList.add('visible');
+    }, delay);
+  }
+
+  show('#home',     0);
+  show('#s1',       40);
+  show('#subtitle', 90);
+  show('#nav',      140);
+</script>

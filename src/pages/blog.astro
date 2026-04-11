@@ -1,0 +1,328 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Blueless的存档点 | BL Blog">
+  <link slot="head" rel="preconnect" href="https://fonts.googleapis.com" />
+  <link slot="head" rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link slot="head" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&display=swap" />
+
+  <!-- 动态渐变背景 -->
+  <div class="page-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- 右上角主页按钮 -->
+  <a href="/" class="home-btn layer-item" id="home">主页</a>
+
+  <!-- 主内容区 -->
+  <div class="page-content">
+
+    <section class="slogan-section">
+      <div class="slogan-container">
+        <h1 class="slogan-1 layer-item" id="s1">Blueless的存档点</h1>
+        <p class="subtitle layer-item" id="subtitle">——林间的记录之池</p>
+      </div>
+    </section>
+
+    <section class="blog-section layer-item" id="blog">
+      <div class="blog-grid">
+
+        <a href="/blog/fogging" class="blog-card card-fog">
+          <span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 32 22" fill="none" stroke="currentColor"
+                 stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 19H6a5 5 0 0 1-.4-9.97A7 7 0 0 1 19.5 8a5 5 0 0 1 4.5 2.8
+                       A4.5 4.5 0 0 1 27 15.5a4.5 4.5 0 0 1-4.5 3.5H24"/>
+            </svg>
+          </span>
+          <span class="card-zh">迷茫</span>
+          <span class="card-en">Fogging</span>
+        </a>
+
+        <a href="/blog/exploreing" class="blog-card card-exp">
+          <span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 30 24" fill="none" stroke="currentColor"
+                 stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="7" width="26" height="15" rx="3"/>
+              <circle cx="15" cy="14.5" r="4.5"/>
+              <path d="M11 7l2.5-4h4L20 7"/>
+              <circle cx="24" cy="11" r="1.6" fill="currentColor" stroke="none"/>
+            </svg>
+          </span>
+          <span class="card-zh">探索</span>
+          <span class="card-en">Explore</span>
+        </a>
+
+        <a href="/blog/creating" class="blog-card card-cre">
+          <span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 26 30" fill="none" stroke="currentColor"
+                 stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9.5 24c0-2-1.5-3.5-2.5-5.5A8 8 0 1 1 19 18.5c-1 2-2.5 3.5-2.5 5.5H9.5z"/>
+              <line x1="9.5" y1="26.5" x2="16.5" y2="26.5"/>
+              <line x1="10.5" y1="29"   x2="15.5" y2="29"/>
+            </svg>
+          </span>
+          <span class="card-zh">创造</span>
+          <span class="card-en">Create</span>
+        </a>
+
+        <a href="/blog/thinking" class="blog-card card-thi">
+          <span class="card-icon" aria-hidden="true">
+            <svg viewBox="0 0 28 26" fill="none" stroke="currentColor"
+                 stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="14" y1="3.5" x2="14" y2="22.5"/>
+              <path d="M14 3.5C12 1.5 7.5 2 6 5S5.5 10 7.5 11.5C5.5 12.5 5 15.5 6.5 17.5S11 20 13 19.5"/>
+              <path d="M14 3.5c2-2 6.5-1.5 8 1.5S22.5 10 20.5 11.5c2 1 2.5 4 1 6S17 20 15 19.5"/>
+              <path d="M7.5 11.5c2-.5 4 1 4.5-.5"/>
+              <path d="M20.5 11.5c-2-.5-4 1-4.5-.5"/>
+            </svg>
+          </span>
+          <span class="card-zh">思考</span>
+          <span class="card-en">Think</span>
+        </a>
+
+      </div>
+    </section>
+
+  </div>
+</Layout>
+
+<style>
+  :root {
+    --c1: #00b4d8;
+    --c2: #48cae4;
+    --c3: #90e0ef;
+    --c4: #ade8f4;
+    --c5: #caf0f8;
+    --bg-dark: #001219;
+  }
+
+  .page-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--bg-dark);
+    overflow: hidden;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+  }
+
+  .orb-1 {
+    width: 65vw; height: 65vw;
+    background: radial-gradient(circle, var(--c1) 0%, var(--c2) 60%, transparent 100%);
+    top: -20%; right: -15%;
+    opacity: 0.5;
+    animation: float1 14s ease-in-out infinite;
+  }
+
+  .orb-2 {
+    width: 50vw; height: 50vw;
+    background: radial-gradient(circle, var(--c2) 0%, var(--c3) 60%, transparent 100%);
+    bottom: -15%; left: -10%;
+    opacity: 0.45;
+    animation: float2 18s ease-in-out infinite;
+  }
+
+  .orb-3 {
+    width: 28vw; height: 28vw;
+    background: radial-gradient(circle, var(--c4), var(--c5), transparent);
+    top: 40%; left: 35%;
+    opacity: 0.18;
+    animation: float3 11s ease-in-out infinite;
+  }
+
+  @keyframes float1 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%     { transform: translate(-4vw, 6vh) scale(1.08); }
+    66%     { transform: translate(3vw, -4vh) scale(0.94); }
+  }
+  @keyframes float2 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(6vw, -6vh) scale(1.12); }
+  }
+  @keyframes float3 {
+    0%,100% { transform: translate(0,0); opacity: .18; }
+    50%     { transform: translate(-3vw, 4vh); opacity: .3; }
+  }
+
+  /* 分层渐显：初始透明 + 上移，由 JS 添加 .visible 触发 */
+  .layer-item {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity  0.55s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .layer-item.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .home-btn {
+    position: fixed;
+    top: 1.4rem;
+    right: 1.6rem;
+    z-index: 100;
+    padding: 0.45rem 1.2rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.75);
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 100px;
+    text-decoration: none;
+    transition: color 0.3s ease, background 0.3s ease;
+  }
+
+  .home-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.14);
+  }
+
+  .page-content {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1.5rem 4rem;
+    color: #fff;
+  }
+
+  .slogan-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 960px;
+    padding-top: 14vh;
+    padding-bottom: 4vh;
+  }
+
+  .slogan-container { width: 100%; }
+
+  .slogan-1 {
+    font-family: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-size: clamp(2.4rem, 8vw, 6rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    color: #fff;
+    text-shadow: 0 0 100px rgba(0, 180, 216, 0.38);
+  }
+
+  .subtitle {
+    margin-top: 1.2rem;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: rgba(202, 240, 248, 0.65);
+  }
+
+  .blog-section {
+    width: 100%;
+    max-width: 960px;
+    padding: 1.5rem 0 2rem;
+  }
+
+  .blog-grid {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .blog-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.7rem 2rem 1.4rem;
+    min-width: 128px;
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(14px) saturate(1.5);
+    -webkit-backdrop-filter: blur(14px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    color: #fff;
+    text-decoration: none;
+    box-shadow:
+      0 8px 28px rgba(0,0,0,.35),
+      0 1px 0 rgba(255,255,255,.09) inset;
+    transition:
+      transform    0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow   0.4s ease,
+      border-color 0.4s ease;
+  }
+
+  .blog-card:hover { transform: translateY(-10px) scale(1.04); }
+
+  .card-fog:hover { box-shadow: 0 20px 50px rgba(0,180,216,.38), 0 8px 24px rgba(0,0,0,.4); border-color: rgba(0,180,216,.48); }
+  .card-exp:hover { box-shadow: 0 20px 50px rgba(72,202,228,.38), 0 8px 24px rgba(0,0,0,.4); border-color: rgba(72,202,228,.48); }
+  .card-cre:hover { box-shadow: 0 20px 50px rgba(144,224,239,.3), 0 8px 24px rgba(0,0,0,.4); border-color: rgba(144,224,239,.4); }
+  .card-thi:hover { box-shadow: 0 20px 50px rgba(202,240,248,.25),0 8px 24px rgba(0,0,0,.4); border-color: rgba(202,240,248,.38); }
+
+  .card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin-bottom: 0.75rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+
+  .card-icon svg { width: 100%; height: 100%; }
+
+  .blog-card:hover .card-icon {
+    color: rgba(255, 255, 255, 0.9);
+    transform: scale(1.12);
+  }
+
+  .card-zh {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+  }
+
+  .card-en {
+    font-size: .7rem;
+    font-weight: 400;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.38);
+    margin-top: .3rem;
+  }
+
+  @media (max-width: 560px) {
+    .blog-card { min-width: 96px; padding: 1.4rem 1.4rem 1.1rem; }
+    .card-zh   { font-size: 1.25rem; }
+  }
+</style>
+
+<script>
+  /* 分层渐显：页面加载后立即按层级依次触发，delay 控制在 150ms 以内 */
+  function show(selector: string, delay: number) {
+    setTimeout(() => {
+      document.querySelector(selector)?.classList.add('visible');
+    }, delay);
+  }
+
+  show('#home',     0);
+  show('#s1',       40);
+  show('#subtitle', 90);
+  show('#blog',     140);
+</script>

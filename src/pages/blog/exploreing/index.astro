@@ -1,0 +1,15 @@
+---
+import { getCollection } from 'astro:content';
+const posts = await getCollection('exploreing');
+posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+if (posts.length > 0) {
+  return Astro.redirect(`/blog/exploreing/${posts[0].id}`);
+}
+---
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>探索 · BL Blog</title></head>
+<body style="background:#0d2b38;color:rgba(135,215,185,0.6);display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;letter-spacing:0.1em;">
+  暂无文章 · <a href="/blog" style="color:#57cc99;margin-left:0.5rem">返回博客</a>
+</body>
+</html>

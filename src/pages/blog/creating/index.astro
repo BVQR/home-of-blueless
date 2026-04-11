@@ -1,0 +1,15 @@
+---
+import { getCollection } from 'astro:content';
+const posts = await getCollection('creating');
+posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+if (posts.length > 0) {
+  return Astro.redirect(`/blog/creating/${posts[0].id}`);
+}
+---
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><title>创造 · BL Blog</title></head>
+<body style="background:#1a0d3d;color:rgba(220,180,120,0.6);display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;letter-spacing:0.1em;">
+  暂无文章 · <a href="/blog" style="color:#f7b801;margin-left:0.5rem">返回博客</a>
+</body>
+</html>

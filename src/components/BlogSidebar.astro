@@ -1,0 +1,241 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  posts: CollectionEntry<any>[];
+  currentSlug: string;
+  basePath: string;
+  categoryName: string;
+}
+
+const { posts, currentSlug, basePath, categoryName } = Astro.props;
+
+const sortedPosts = [...posts].sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString('zh-CN', {
+    year: 'numeric', month: 'short', day: 'numeric',
+  });
+}
+---
+
+<aside class="blog-sidebar" id="sidebar">
+  <div class="sb-header">
+    <span class="sb-cat-name">{categoryName}</span>
+    <span class="sb-count">{posts.length} 篇</span>
+  </div>
+
+  {sortedPosts.length === 0 ? (
+    <p class="sb-empty">暂无文章</p>
+  ) : (
+    <nav class="sb-nav">
+      <ul>
+        {sortedPosts.map(post => (
+          <li>
+            <a
+              href={`${basePath}/${post.id}`}
+              class={`sb-item${post.id === currentSlug ? ' active' : ''}`}
+            >
+              <span class="sb-item-title">{post.data.title}</span>
+              <div class="sb-item-footer">
+                <time class="sb-date">{formatDate(post.data.date)}</time>
+                {post.data.tags && post.data.tags.length > 0 && (
+                  <div class="sb-tags">
+                    {post.data.tags.slice(0, 3).map((tag: string) => (
+                      <span class="sb-tag">{tag}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )}
+</aside>
+
+<div class="sb-backdrop" id="sb-backdrop" aria-hidden="true"></div>
+
+<style>
+  .blog-sidebar {
+    position: fixed;
+    left: 0;
+    top: 4.2rem;
+    bottom: 0;
+    width: 260px;
+    overflow-y: auto;
+    z-index: 40;
+    background: var(--sb-bg, rgba(0,0,0,0.35));
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    border-right: 1px solid var(--sb-border, rgba(255,255,255,0.1));
+    padding: 1.2rem 0 2rem;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sb-scrollbar, rgba(255,255,255,0.15)) transparent;
+  }
+
+  .blog-sidebar::-webkit-scrollbar { width: 4px; }
+  .blog-sidebar::-webkit-scrollbar-track { background: transparent; }
+  .blog-sidebar::-webkit-scrollbar-thumb {
+    background: var(--sb-scrollbar, rgba(255,255,255,0.15));
+    border-radius: 99px;
+  }
+
+  .sb-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 0 1.2rem 1rem;
+    border-bottom: 1px solid var(--sb-border, rgba(255,255,255,0.1));
+    margin-bottom: 0.6rem;
+  }
+
+  .sb-cat-name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sb-header-color, rgba(255,255,255,0.9));
+  }
+
+  .sb-count {
+    font-size: 0.68rem;
+    color: var(--sb-text-dim, rgba(255,255,255,0.4));
+    letter-spacing: 0.05em;
+  }
+
+  .sb-empty {
+    padding: 2rem 1.2rem;
+    font-size: 0.82rem;
+    color: var(--sb-text-dim, rgba(255,255,255,0.4));
+    letter-spacing: 0.06em;
+    text-align: center;
+  }
+
+  .sb-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sb-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.85rem 1.2rem;
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: background 0.2s ease, border-color 0.2s ease;
+  }
+
+  .sb-item:hover {
+    background: var(--sb-hover-bg, rgba(255,255,255,0.06));
+  }
+
+  .sb-item.active {
+    background: var(--sb-active-bg, rgba(255,255,255,0.1));
+    border-left-color: var(--sb-active-border, rgba(255,255,255,0.6));
+  }
+
+  .sb-item-title {
+    font-size: 0.88rem;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--sb-text, rgba(255,255,255,0.85));
+    letter-spacing: 0.02em;
+  }
+
+  .sb-item.active .sb-item-title {
+    color: var(--sb-active-border, #fff);
+    font-weight: 600;
+  }
+
+  .sb-item-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .sb-date {
+    font-size: 0.68rem;
+    color: var(--sb-text-dim, rgba(255,255,255,0.4));
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+
+  .sb-tags {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+  }
+
+  .sb-tag {
+    font-size: 0.62rem;
+    padding: 0.12rem 0.5rem;
+    background: var(--sb-tag-bg, rgba(255,255,255,0.08));
+    border: 1px solid var(--sb-tag-border, rgba(255,255,255,0.12));
+    border-radius: 999px;
+    color: var(--sb-tag-text, rgba(255,255,255,0.6));
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .sb-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 39;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+
+  @media (max-width: 860px) {
+    .blog-sidebar {
+      top: 0;
+      padding-top: calc(4.2rem + 0.8rem);
+      width: min(280px, 82vw);
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 90;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.4);
+    }
+    .blog-sidebar.open { transform: translateX(0); }
+    .sb-backdrop { display: block; }
+    .sb-backdrop.active { opacity: 1; pointer-events: auto; }
+  }
+</style>
+
+<script>
+  const sidebar   = document.getElementById('sidebar');
+  const backdrop  = document.getElementById('sb-backdrop');
+  const toggleBtn = document.getElementById('sb-toggle');
+
+  function openSidebar() {
+    sidebar?.classList.add('open');
+    backdrop?.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeSidebar() {
+    sidebar?.classList.remove('open');
+    backdrop?.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  toggleBtn?.addEventListener('click', () => {
+    sidebar?.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+  backdrop?.addEventListener('click', closeSidebar);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
+</script>

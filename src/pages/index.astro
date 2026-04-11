@@ -1,0 +1,305 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="BL Blog">
+  <!-- Playfair Display 优雅衬线字体 - 用于 Slogan -->
+  <link slot="head" rel="preconnect" href="https://fonts.googleapis.com" />
+  <link slot="head" rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link slot="head" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,900;1,700&display=swap" />
+
+  <!-- 斜向扫入遮罩 -->
+  <div class="sweep-overlay" aria-hidden="true">
+    <div class="sweep-block"></div>
+  </div>
+
+  <!-- 动态渐变背景：模糊光晕球缓慢浮动 -->
+  <div class="page-bg" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- 主内容区 -->
+  <div class="page-content">
+
+    <!-- Slogan 区域：serif 衬线字体，两行错行排列，无分割线 -->
+    <section class="slogan-section">
+      <div class="slogan-container">
+
+        <!-- 第一行：正体粗衬线 -->
+        <h1 class="slogan-1 reveal-item" id="s1">To Create</h1>
+
+        <!-- 第二行：斜体错位，呼应衬线古典韵味 -->
+        <h2 class="slogan-2 reveal-item" id="s2">To Be Great</h2>
+
+        <!-- 副标题 -->
+        <p class="subtitle reveal-item" id="subtitle">Blueless 的林中小窝</p>
+
+      </div>
+    </section>
+
+    <!-- 主导航区：三个无图标玻璃胶囊按钮 -->
+    <section class="nav-section reveal-item" id="nav">
+      <div class="nav-grid">
+        <a href="/blog"        class="nav-btn btn-blog">博客</a>
+        <a href="/gallery"     class="nav-btn btn-gallery">画廊</a>
+        <a href="/application" class="nav-btn btn-app">应用</a>
+      </div>
+    </section>
+
+  </div><!-- end .page-content -->
+</Layout>
+
+<style>
+  /* ===== 主题色变量 ===== */
+  :root {
+    --c1: #07c8f9;
+    --c2: #0a85ed;
+    --c3: #0c63e7;
+    --c4: #0d41e1;
+    --bg-dark: #010d1f;
+  }
+
+  /* ===== 斜向扫入遮罩 ===== */
+  .sweep-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* skewY 产生对角边缘，translateY 驱动斜向下穿越 */
+  .sweep-block {
+    position: absolute;
+    top: -20%; left: -10%;
+    width: 120%; height: 150%;
+    background: linear-gradient(135deg, var(--c1) 0%, var(--c2) 35%, var(--c3) 65%, var(--c4) 100%);
+    transform: skewY(-6deg) translateY(-115%);
+    animation: sweepDown 1.3s cubic-bezier(0.87, 0, 0.13, 1) 0.15s forwards;
+  }
+
+  @keyframes sweepDown {
+    0%   { transform: skewY(-6deg) translateY(-115%); }
+    100% { transform: skewY(-6deg) translateY(125%);  }
+  }
+
+  /* ===== 动态渐变背景 ===== */
+  .page-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--bg-dark);
+    overflow: hidden;
+  }
+
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+  }
+
+  .orb-1 {
+    width: 65vw; height: 65vw;
+    background: radial-gradient(circle, var(--c1) 0%, var(--c3) 60%, transparent 100%);
+    top: -20%; right: -15%;
+    opacity: 0.55;
+    animation: float1 14s ease-in-out infinite;
+  }
+
+  .orb-2 {
+    width: 55vw; height: 55vw;
+    background: radial-gradient(circle, var(--c3) 0%, var(--c4) 60%, transparent 100%);
+    bottom: -15%; left: -10%;
+    opacity: 0.6;
+    animation: float2 18s ease-in-out infinite;
+  }
+
+  .orb-3 {
+    width: 25vw; height: 25vw;
+    background: radial-gradient(circle, rgba(7,200,249,0.6), var(--c2), transparent);
+    top: 45%; left: 38%;
+    opacity: 0.2;
+    animation: float3 11s ease-in-out infinite;
+  }
+
+  @keyframes float1 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%     { transform: translate(-4vw, 6vh) scale(1.08); }
+    66%     { transform: translate(3vw, -4vh) scale(0.94); }
+  }
+  @keyframes float2 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(6vw, -6vh) scale(1.12); }
+  }
+  @keyframes float3 {
+    0%,100% { transform: translate(0,0); opacity: .2; }
+    50%     { transform: translate(-4vw, 5vh); opacity: .35; }
+  }
+
+  /* ===== 主内容区 ===== */
+  .page-content {
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1.5rem 4rem;
+    color: #fff;
+  }
+
+  /* ===== Slogan 区域 ===== */
+  .slogan-section {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 960px;
+    padding-top: 14vh;
+    padding-bottom: 4vh;
+  }
+
+  .slogan-container { width: 100%; }
+
+  /* Playfair Display 衬线字体 - 古典出版风格，厚重优雅 */
+  .slogan-1,
+  .slogan-2 {
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    font-size: clamp(3rem, 10.5vw, 8rem);
+    font-weight: 900;
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+    display: block;
+    opacity: 0;
+    transform: translateY(32px);
+    transition:
+      opacity  0.75s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .slogan-1 {
+    color: #fff;
+    text-shadow: 0 0 120px rgba(7, 200, 249, 0.28);
+  }
+
+  /* 第二行：斜体 + 右移错位，呼应衬线字体的古典韵味 */
+  .slogan-2 {
+    font-style: italic;
+    color: rgba(7, 200, 249, 0.88);
+    margin-left: clamp(4rem, 20vw, 12rem);
+    text-shadow: 0 0 120px rgba(7, 200, 249, 0.42);
+  }
+
+  /* 副标题：细字重，宽字距 */
+  .subtitle {
+    margin-top: 2rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 0.60em;
+    color: rgba(255, 255, 255, 0.42);
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity  0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* reveal-item：JS 添加 .visible 后触发过渡 */
+  .reveal-item.visible {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* ===== 导航按钮区 ===== */
+  .nav-section {
+    width: 100%;
+    max-width: 1024px;
+    padding: 6rem 0 6rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition:
+      opacity  0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .nav-grid {
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* 磨砂玻璃胶囊按钮，无图标，纯文字 */
+  .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.9rem 3.2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(14px) saturate(1.5);
+    -webkit-backdrop-filter: blur(14px) saturate(1.5);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 100px;
+    text-decoration: none;
+    box-shadow:
+      0 6px 24px rgba(0,0,0,.3),
+      0 1px 0 rgba(255,255,255,.08) inset;
+    transition:
+      transform    0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow   0.35s ease,
+      border-color 0.35s ease,
+      background   0.35s ease;
+  }
+
+  /* 各按钮悬停颜色呼应对应页面主题色 */
+  .btn-blog:hover {
+    transform: translateY(-6px) scale(1.04);
+    box-shadow: 0 18px 44px rgba(7, 200, 249, 0.28), 0 6px 20px rgba(0,0,0,.4);
+    border-color: rgba(7, 200, 249, 0.45);
+    background: rgba(7, 200, 249, 0.1);
+  }
+
+  .btn-gallery:hover {
+    transform: translateY(-6px) scale(1.04);
+    box-shadow: 0 18px 44px rgba(79, 119, 45, 0.35), 0 6px 20px rgba(0,0,0,.4);
+    border-color: rgba(79, 119, 45, 0.5);
+    background: rgba(79, 119, 45, 0.12);
+  }
+
+  .btn-app:hover {
+    transform: translateY(-6px) scale(1.04);
+    box-shadow: 0 18px 44px rgba(247, 37, 133, 0.28), 0 6px 20px rgba(0,0,0,.4);
+    border-color: rgba(247, 37, 133, 0.45);
+    background: rgba(247, 37, 133, 0.1);
+  }
+
+  /* ===== 响应式 ===== */
+  @media (max-width: 560px) {
+    .nav-btn  { padding: 0.75rem 2rem; font-size: 1rem; }
+    .slogan-2 { margin-left: clamp(2rem, 12vw, 5rem); }
+  }
+</style>
+
+<script>
+  /**
+   * 动画时序控制
+   * 扫入色块结束后（约1450ms），依次为各元素添加 .visible，触发 CSS 过渡
+   */
+  const SWEEP_MS = 550 + 150;
+
+  function show(selector: string, delay: number) {
+    setTimeout(() => {
+      document.querySelector(selector)?.classList.add('visible');
+    }, SWEEP_MS + delay);
+  }
+
+  show('#s1',       80);   // 第一行 slogan
+  show('#s2',       100
+  );  // 第二行 slogan，斜体错开
+  show('#subtitle', 200);  // 副标题淡入
+  show('#nav',      300);  // 导航按钮组
+</script>

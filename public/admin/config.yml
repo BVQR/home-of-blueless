@@ -1,0 +1,55 @@
+backend:
+  name: github
+  repo: BVQR/BL-blog
+  branch: main
+  base_url: https://home.bluelessfun.xyz
+
+media_folder: public/images/blog
+public_folder: /images/blog
+
+locale: zh
+
+collections:
+  - name: fogging
+    label: "迷茫 · 文章"
+    folder: src/content/fogging
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: 标题, name: title, widget: string }
+      - { label: 标签, name: tags, widget: list, default: [] }
+      - { label: 日期, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false, default: "" }
+      - { label: 正文, name: body, widget: markdown }
+
+  - name: exploreing
+    label: "探索 · 文章"
+    folder: src/content/exploreing
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: 标题, name: title, widget: string }
+      - { label: 标签, name: tags, widget: list, default: [] }
+      - { label: 日期, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false, default: "" }
+      - { label: 正文, name: body, widget: markdown }
+
+  - name: creating
+    label: "创造 · 文章"
+    folder: src/content/creating
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: 标题, name: title, widget: string }
+      - { label: 标签, name: tags, widget: list, default: [] }
+      - { label: 日期, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false, default: "" }
+      - { label: 正文, name: body, widget: markdown }
+
+  - name: thinking
+    label: "思考 · 文章"
+    folder: src/content/thinking
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: 标题, name: title, widget: string }
+      - { label: 标签, name: tags, widget: list, default: [] }
+      - { label: 日期, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "YYYY-MM-DD", time_format: false, default: "" }
+      - { label: 正文, name: body, widget: markdown }
