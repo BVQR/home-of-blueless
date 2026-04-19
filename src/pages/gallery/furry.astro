@@ -1,65 +1,101 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+/* ── 旋转角度 & 垂直偏移预设（基于索引循环） ──────────────────────── */
+const ROTATIONS = [-6, 4, -3, 7, -5, 2, -8, 5, -2, 6, -4, 8, -7, 3, -1, 5, -9, 4, -3, 6];
+const OFFSETS   = [0, 12, -8, 6, -15, 10, -5, 18, -11, 4, -18, 8, -3, 14, -9, 2];
+
+/* ── 自动发现图片 ──────────────────────────────────────────────────── */
+const furryBase = path.join(process.cwd(), 'public', 'images', 'furry');
+const IMG = /\.(jpe?g|png|webp|gif|avif)$/i;
+
+const images = fs.existsSync(furryBase)
+  ? fs.readdirSync(furryBase)
+      .filter(f => IMG.test(f))
+      .sort()
+      .map((filename, i) => ({
+        src:  `/images/furry/${filename}`,
+        name: filename.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' '),
+        rot:  ROTATIONS[i % ROTATIONS.length],
+        mt:   OFFSETS[i % OFFSETS.length],
+      }))
+  : [];
 ---
 
 <Layout title="幻梦之间 | 照片墙">
   <link slot="head" rel="preconnect" href="https://fonts.googleapis.com" />
   <link slot="head" rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link slot="head" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" />
+  <link slot="head" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" />
 
-  <!-- 动态渐变背景 -->
   <div class="page-bg" aria-hidden="true">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
   </div>
 
-  <!-- 右上角导航按钮组 -->
   <nav class="top-nav layer-item" id="topnav">
     <a href="/" class="nav-link">主页</a>
     <a href="/gallery" class="nav-link">照片墙</a>
   </nav>
 
-  <!-- 主内容区 -->
   <div class="page-content">
+
+    <!-- 页面装饰层 -->
+    <div class="decor-layer" aria-hidden="true">
+      <span class="dec"     style="top:3%;left:2%">✦</span>
+      <span class="dec sm"  style="top:6%;left:6.5%">⋆</span>
+      <span class="dec lg"  style="top:4%;right:3%">✧</span>
+      <span class="dec sm"  style="top:8%;right:7%">∗</span>
+      <span class="dec"     style="top:11%;left:1%">◦</span>
+      <span class="dec lg"  style="top:27%;left:1.5%">✺</span>
+      <span class="dec sm"  style="top:32%;left:5%">⋆</span>
+      <span class="dec"     style="top:46%;left:1%">✦</span>
+      <span class="dec sm"  style="top:50%;left:4.5%">·</span>
+      <span class="dec"     style="top:65%;left:2%">✧</span>
+      <span class="dec lg"  style="top:25%;right:2%">✺</span>
+      <span class="dec sm"  style="top:30%;right:6%">⋆</span>
+      <span class="dec"     style="top:44%;right:1.5%">✦</span>
+      <span class="dec sm"  style="top:49%;right:5%">∘</span>
+      <span class="dec"     style="top:62%;right:2%">✧</span>
+      <span class="dec sm"  style="top:68%;right:7%">·</span>
+      <span class="dec"     style="top:78%;left:3%">✺</span>
+      <span class="dec sm"  style="top:82%;left:7%">⋆</span>
+      <span class="dec"     style="top:80%;right:2.5%">✦</span>
+      <span class="dec sm"  style="top:86%;right:6%">∗</span>
+    </div>
 
     <header class="page-header">
       <h1 class="page-title layer-item" id="title">🐺 幻梦之间</h1>
       <p class="page-sub layer-item" id="sub">那些毛茸茸的奇异梦境</p>
     </header>
 
-    <!--
-      =====================================================================
-      Furry 艺术图片展示区域 - 瀑布流 CSS Columns 布局
-      =====================================================================
-
-      添加图片方式：
-        在 .photo-grid 内部（"在此处添加图片"注释后）插入：
-
-        <figure class="photo-item">
-          <img src="/images/furry/your-art.jpg" alt="作品描述" loading="lazy" />
-          <figcaption>可选文字说明（如作者名、作品名）</figcaption>
-        </figure>
-
-      图片建议放置路径：public/images/furry/
-      推荐格式：webp / jpg / png
-
-      布局说明：
-        - columns: 3 240px → 最小列宽 240px，最多约 3-4 列，自动响应
-        - break-inside: avoid → 防止图片被列边界截断
-        - loading="lazy" → 浏览器原生懒加载，提升性能
-      =====================================================================
-    -->
-    <section class="photo-grid layer-item" id="grid">
-
-      <!-- 暂无图片时的占位提示，添加图片后可删除此 div -->
-      <div class="empty-state">
-        <span class="empty-icon">🌙</span>
-        <p>梦境整理中，敬请期待…</p>
-      </div>
-
-      <!-- 在此处添加 <figure class="photo-item"> 图片条目 -->
-
-    </section>
+    {images.length === 0
+      ? (
+        <div class="empty-state layer-item" id="grid">
+          <span class="empty-icon">🌙</span>
+          <p>梦境整理中，敬请期待…</p>
+        </div>
+      )
+      : (
+        <div class="furry-grid layer-item" id="grid">
+          {images.map(img => (
+            <div
+              class="furry-slot"
+              style={`--mt:${img.mt}px`}
+            >
+              <div class="furry-card" style={`--rot:${img.rot}deg`}>
+                <div class="card-img-wrap">
+                  <img src={img.src} alt={img.name} loading="lazy" />
+                </div>
+                <p class="card-name">{img.name}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+    }
 
   </div>
 </Layout>
@@ -74,33 +110,27 @@ import Layout from '../../layouts/Layout.astro';
   }
 
   .page-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background: var(--bg-dark);
-    overflow: hidden;
+    position: fixed; inset: 0; z-index: -1;
+    background: var(--bg-dark); overflow: hidden;
   }
-
-  .orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(90px);
-  }
-
+  .orb { position: absolute; border-radius: 50%; filter: blur(90px); }
   .orb-1 {
     width: 60vw; height: 60vw;
     background: radial-gradient(circle, var(--c2) 0%, var(--c1) 60%, transparent 100%);
-    top: -15%; right: -10%;
-    opacity: 0.5;
+    top: -15%; right: -10%; opacity: 0.5;
     animation: float1 14s ease-in-out infinite;
   }
-
   .orb-2 {
     width: 45vw; height: 45vw;
     background: radial-gradient(circle, var(--c1) 0%, transparent 100%);
-    bottom: -10%; left: -8%;
-    opacity: 0.45;
+    bottom: -10%; left: -8%; opacity: 0.45;
     animation: float2 18s ease-in-out infinite;
+  }
+  .orb-3 {
+    width: 35vw; height: 35vw;
+    background: radial-gradient(circle, rgba(60,30,80,0.6) 0%, transparent 100%);
+    top: 40%; left: 30%; opacity: 0.3;
+    animation: float3 22s ease-in-out infinite;
   }
 
   @keyframes float1 {
@@ -111,159 +141,180 @@ import Layout from '../../layouts/Layout.astro';
     0%,100% { transform: translate(0,0) scale(1); }
     50%     { transform: translate(5vw, -5vh) scale(1.1); }
   }
+  @keyframes float3 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(-6vw, -4vh) scale(1.08); }
+  }
 
-  /* 分层渐显 */
   .layer-item {
-    opacity: 0;
-    transform: translateY(16px);
-    transition:
-      opacity  0.5s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.55s cubic-bezier(0.16,1,0.3,1),
+                transform 0.55s cubic-bezier(0.16,1,0.3,1);
   }
-
-  .layer-item.visible {
-    opacity: 1;
-    transform: none;
-  }
+  .layer-item.visible { opacity: 1; transform: none; }
 
   .top-nav {
-    position: fixed;
-    top: 1.4rem;
-    right: 1.6rem;
-    z-index: 100;
-    display: flex;
-    gap: 0.6rem;
+    position: fixed; top: 1.4rem; right: 1.6rem;
+    z-index: 100; display: flex; gap: 0.6rem;
   }
-
   .nav-link {
     padding: 0.45rem 1.1rem;
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
+    font-size: 0.82rem; font-weight: 600; letter-spacing: 0.1em;
     color: rgba(255,255,255,0.75);
     background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 100px;
-    text-decoration: none;
-    transition: color 0.3s ease, background 0.3s ease;
+    border-radius: 100px; text-decoration: none;
+    transition: color 0.3s, background 0.3s;
+    font-family: 'Noto Sans SC', sans-serif;
   }
+  .nav-link:hover { color: #fff; background: rgba(255,255,255,0.14); }
 
-  .nav-link:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.14);
-  }
-
+  /* ── 页面框架 ─────────────────────────────── */
   .page-content {
     min-height: 100svh;
-    padding: 0 2rem 4rem;
+    padding: 0 0 6rem;
     color: #fff;
+    position: relative;
+    overflow: hidden;
   }
 
   .page-header {
-    padding-top: 16vh;
-    margin-bottom: 2.5rem;
+    padding: 16vh 3rem 2.5rem;
+    position: relative; z-index: 1;
   }
-
   .page-title {
     font-family: 'Noto Sans SC', sans-serif;
     font-size: clamp(1.8rem, 5vw, 3.2rem);
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: #fff;
-    text-shadow: 0 0 80px rgba(79, 119, 45, 0.5);
+    font-weight: 700; letter-spacing: 0.04em; color: #fff;
+    text-shadow: 0 0 80px rgba(79,119,45,0.5);
   }
-
   .page-sub {
     margin-top: 0.7rem;
     font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.9rem; font-weight: 400; letter-spacing: 0.1em;
+    color: rgba(236,243,158,0.6);
+  }
+
+  /* ── 装饰层 ───────────────────────────────── */
+  .decor-layer {
+    position: absolute; inset: 0;
+    pointer-events: none; z-index: 0; overflow: hidden;
+  }
+
+  .dec {
+    position: absolute;
     font-size: 0.9rem;
-    font-weight: 400;
-    letter-spacing: 0.1em;
-    color: rgba(236, 243, 158, 0.6);
+    color: rgba(144,169,85,0.28);
+    animation: twinkle 4s ease-in-out infinite;
+    user-select: none;
+  }
+  .dec.sm { font-size: 0.55rem; animation-delay: 0.9s; color: rgba(236,243,158,0.2); }
+  .dec.lg { font-size: 1.3rem; animation-delay: 1.8s; color: rgba(144,169,85,0.22); }
+
+  @keyframes twinkle {
+    0%,100% { opacity: 0.18; }
+    50%     { opacity: 0.9; }
   }
 
+  /* ── 散落卡片网格 ─────────────────────────── */
   /*
-    ===== 瀑布流图片网格 =====
-    columns: 最小列宽 240px，自动计算列数（最多约 3-4 列）
+    每个 .furry-slot 是网格单元。
+    槽内有足够 padding 让卡片在旋转时不超出相邻单元。
+    --mt 垂直偏移量在槽内通过 margin-top 实现，不影响网格布局。
   */
-  .photo-grid {
-    columns: 3 240px;
-    column-gap: 1.2rem;
+  .furry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 220px);
+    gap: 72px 64px;
+    justify-content: center;
+    padding: 1rem 5rem 4rem;
+    position: relative; z-index: 1;
   }
 
-  /*
-    每张图片的容器
-    break-inside: avoid → 防止图片被列边界截断
-  */
-  .photo-item {
-    break-inside: avoid;
-    margin-bottom: 1.2rem;
-    border-radius: 12px;
-    overflow: hidden;
+  .furry-slot {
+    width: 220px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    margin-top: var(--mt, 0px);
+  }
+
+  .furry-card {
+    width: 196px;
     background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 10px;
+    padding: 10px 10px 12px;
+    transform: rotate(var(--rot, 0deg));
+    transform-origin: center center;
     transition:
-      transform  0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-      box-shadow 0.35s ease;
+      transform 0.45s cubic-bezier(0.34,1.56,0.64,1),
+      box-shadow 0.4s ease,
+      background 0.3s ease;
+    cursor: default;
+    position: relative; z-index: 1;
+  }
+  .furry-card:hover {
+    transform: rotate(0deg) scale(1.09);
+    box-shadow: 0 22px 55px rgba(79,119,45,0.5);
+    background: rgba(255,255,255,0.1);
+    z-index: 20;
   }
 
-  .photo-item:hover {
-    transform: translateY(-5px) scale(1.01);
-    box-shadow: 0 16px 40px rgba(144, 169, 85, 0.38);
-  }
-
-  /* 图片自适应宽度，保持原始比例 */
-  .photo-item img {
+  .card-img-wrap {
     width: 100%;
-    height: auto;
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(0,0,0,0.25);
+  }
+  .card-img-wrap img {
+    width: 100%; height: 100%;
     display: block;
-    object-fit: cover;
+    object-fit: contain;
+    transition: transform 0.5s ease;
   }
+  .furry-card:hover .card-img-wrap img { transform: scale(1.05); }
 
-  /* 可选作品说明文字 */
-  .photo-item figcaption {
-    padding: 0.6rem 0.9rem 0.75rem;
+  .card-name {
+    margin-top: 8px; text-align: center;
     font-family: 'Noto Sans SC', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    color: rgba(236, 243, 158, 0.55);
+    font-size: 0.72rem; font-weight: 400;
+    letter-spacing: 0.08em;
+    color: rgba(236,243,158,0.55);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 
-  /* 暂无内容时的占位提示 */
   .empty-state {
-    column-span: all;
-    text-align: center;
-    padding: 4rem 2rem;
+    text-align: center; padding: 5rem 2rem;
     color: rgba(255,255,255,0.3);
     font-family: 'Noto Sans SC', sans-serif;
-    font-size: 0.9rem;
-    letter-spacing: 0.1em;
+    font-size: 0.9rem; letter-spacing: 0.1em;
   }
+  .empty-icon { display: block; font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
 
-  .empty-icon {
-    display: block;
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
+  @media (max-width: 768px) {
+    .furry-grid { gap: 55px 48px; padding: 1rem 3rem 4rem; }
+    .page-header { padding: 12vh 1.5rem 2rem; }
   }
-
   @media (max-width: 560px) {
-    .photo-grid  { columns: 2 140px; }
-    .page-header { padding-top: 12vh; }
+    .furry-grid {
+      grid-template-columns: repeat(auto-fill, 160px);
+      gap: 42px 36px;
+      padding: 1rem 1.5rem 4rem;
+    }
+    .furry-slot  { width: 160px; }
+    .furry-card  { width: 144px; }
+    /* 小屏减小旋转角度，保持可读性 */
+    .furry-card  { --rot: calc(var(--rot) * 0.5); }
   }
 </style>
 
 <script>
-  /* 分层渐显：页面加载后立即按层级依次触发 */
-  function show(selector: string, delay: number) {
-    setTimeout(() => {
-      document.querySelector(selector)?.classList.add('visible');
-    }, delay);
+  function show(sel: string, delay: number) {
+    setTimeout(() => document.querySelector(sel)?.classList.add('visible'), delay);
   }
-
   show('#topnav', 0);
   show('#title',  40);
   show('#sub',    80);

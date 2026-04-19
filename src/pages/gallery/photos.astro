@@ -1,66 +1,106 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import fs from 'node:fs';
+import path from 'node:path';
+
+/* ── introduce.md 解析器 ───────────────────────────────────────────── */
+interface IntroData {
+  info: Record<string, string>;
+  tagline: string;
+}
+
+function parseIntroduce(raw: string): IntroData {
+  const [infoSec = '', , tagSec = ''] = raw.split(/\n---\n/);
+  const info: Record<string, string> = {};
+  for (const line of infoSec.split('\n')) {
+    const m = line.match(/^-\s*([^:\n]+):\s*(.+)$/);
+    if (m) info[m[1].trim().toLowerCase()] = m[2].trim();
+  }
+  const tagline = tagSec.trim().replace(/^\*+|\*+$/g, '').trim();
+  return { info, tagline };
+}
+
+function fmtTitle(slug: string): string {
+  return slug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+/* ── 自动发现相册 ──────────────────────────────────────────────────── */
+const photosBase = path.join(process.cwd(), 'public', 'images', 'photos');
+const IMG = /\.(jpe?g|png|webp|gif|avif)$/i;
+
+const albums = fs.existsSync(photosBase)
+  ? fs.readdirSync(photosBase)
+      .filter(n => fs.statSync(path.join(photosBase, n)).isDirectory())
+      .map(slug => {
+        const dir    = path.join(photosBase, slug);
+        const mdPath = path.join(dir, 'introduce.md');
+        const raw    = fs.existsSync(mdPath) ? fs.readFileSync(mdPath, 'utf-8') : '';
+        const { info, tagline } = parseIntroduce(raw);
+        const imgs   = fs.readdirSync(dir).filter(f => IMG.test(f)).sort();
+        return {
+          slug,
+          title:   fmtTitle(slug),
+          info,
+          tagline,
+          cover:   imgs[0] ? `/images/photos/${slug}/${imgs[0]}` : null,
+          count:   imgs.length,
+        };
+      })
+  : [];
 ---
 
 <Layout title="快门瞬息 | 照片墙">
   <link slot="head" rel="preconnect" href="https://fonts.googleapis.com" />
   <link slot="head" rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link slot="head" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" />
+  <link slot="head" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Playfair+Display:ital@0;1&display=swap" />
 
-  <!-- 动态渐变背景 -->
   <div class="page-bg" aria-hidden="true">
     <div class="orb orb-1"></div>
     <div class="orb orb-2"></div>
   </div>
 
-  <!-- 右上角导航按钮组 -->
   <nav class="top-nav layer-item" id="topnav">
     <a href="/" class="nav-link">主页</a>
     <a href="/gallery" class="nav-link">照片墙</a>
   </nav>
 
-  <!-- 主内容区 -->
   <div class="page-content">
-
     <header class="page-header">
       <h1 class="page-title layer-item" id="title">📷 快门瞬息</h1>
       <p class="page-sub layer-item" id="sub">定格每一个值得留存的瞬间</p>
     </header>
 
-    <!--
-      =====================================================================
-      图片展示区域 - 瀑布流 CSS Columns 布局
-      =====================================================================
-
-      添加图片方式：
-        在 .photo-grid 内部（"在此处添加图片"注释后）插入：
-
-        <figure class="photo-item">
-          <img src="/images/photos/your-photo.jpg" alt="照片描述" loading="lazy" />
-          <figcaption>可选文字说明</figcaption>
-        </figure>
-
-      图片建议放置路径：public/images/photos/
-      推荐格式：webp / jpg（文件更小，加载更快）
-
-      布局说明：
-        - columns: 3 280px → 最小列宽 280px，最多铺 3 列，自动响应
-        - break-inside: avoid → 防止单张图片被列边界截断
-        - loading="lazy" → 浏览器原生懒加载，提升性能
-      =====================================================================
-    -->
-    <section class="photo-grid layer-item" id="grid">
-
-      <!-- 暂无图片时的占位提示，添加图片后可删除此 div -->
-      <div class="empty-state">
-        <span class="empty-icon">🌫️</span>
-        <p>照片整理中，敬请期待…</p>
-      </div>
-
-      <!-- 在此处添加 <figure class="photo-item"> 图片条目 -->
-
+    <section class="album-grid layer-item" id="grid">
+      {albums.length === 0
+        ? (
+          <div class="empty-state">
+            <span class="empty-icon">🌫️</span>
+            <p>相册整理中，敬请期待…</p>
+          </div>
+        )
+        : albums.map(album => (
+          <a href={`/gallery/photos/${album.slug}`} class="album-card">
+            <div class="album-cover">
+              {album.cover
+                ? <img src={album.cover} alt={album.title} loading="lazy" />
+                : <div class="album-cover-ph">📷</div>
+              }
+              <div class="album-overlay">
+                <span class="album-count">{album.count} 张</span>
+                <div class="album-overlay-bottom">
+                  {album.info.date    && <span class="album-date">{album.info.date}</span>}
+                  {album.info.address && <span class="album-addr">📍 {album.info.address}</span>}
+                </div>
+              </div>
+            </div>
+            <div class="album-foot">
+              <h2 class="album-title">{album.title}</h2>
+              {album.tagline && <p class="album-tagline">{album.tagline}</p>}
+            </div>
+          </a>
+        ))
+      }
     </section>
-
   </div>
 </Layout>
 
@@ -74,32 +114,22 @@ import Layout from '../../layouts/Layout.astro';
   }
 
   .page-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background: var(--bg-dark);
-    overflow: hidden;
+    position: fixed; inset: 0; z-index: -1;
+    background: var(--bg-dark); overflow: hidden;
   }
 
-  .orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(90px);
-  }
+  .orb { position: absolute; border-radius: 50%; filter: blur(90px); }
 
   .orb-1 {
     width: 60vw; height: 60vw;
     background: radial-gradient(circle, var(--c2) 0%, var(--c1) 60%, transparent 100%);
-    top: -15%; right: -10%;
-    opacity: 0.5;
+    top: -15%; right: -10%; opacity: 0.5;
     animation: float1 14s ease-in-out infinite;
   }
-
   .orb-2 {
     width: 45vw; height: 45vw;
     background: radial-gradient(circle, var(--c1) 0%, transparent 100%);
-    bottom: -10%; left: -8%;
-    opacity: 0.45;
+    bottom: -10%; left: -8%; opacity: 0.45;
     animation: float2 18s ease-in-out infinite;
   }
 
@@ -112,159 +142,153 @@ import Layout from '../../layouts/Layout.astro';
     50%     { transform: translate(5vw, -5vh) scale(1.1); }
   }
 
-  /* 分层渐显 */
   .layer-item {
-    opacity: 0;
-    transform: translateY(16px);
-    transition:
-      opacity  0.5s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0; transform: translateY(16px);
+    transition: opacity 0.55s cubic-bezier(0.16,1,0.3,1),
+                transform 0.55s cubic-bezier(0.16,1,0.3,1);
   }
-
-  .layer-item.visible {
-    opacity: 1;
-    transform: none;
-  }
+  .layer-item.visible { opacity: 1; transform: none; }
 
   .top-nav {
-    position: fixed;
-    top: 1.4rem;
-    right: 1.6rem;
-    z-index: 100;
-    display: flex;
-    gap: 0.6rem;
+    position: fixed; top: 1.4rem; right: 1.6rem;
+    z-index: 100; display: flex; gap: 0.6rem;
   }
-
   .nav-link {
     padding: 0.45rem 1.1rem;
-    font-size: 0.82rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
+    font-size: 0.82rem; font-weight: 600; letter-spacing: 0.1em;
     color: rgba(255,255,255,0.75);
     background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 100px;
-    text-decoration: none;
-    transition: color 0.3s ease, background 0.3s ease;
+    border-radius: 100px; text-decoration: none;
+    transition: color 0.3s, background 0.3s;
+    font-family: 'Noto Sans SC', sans-serif;
   }
-
-  .nav-link:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.14);
-  }
+  .nav-link:hover { color: #fff; background: rgba(255,255,255,0.14); }
 
   .page-content {
     min-height: 100svh;
-    padding: 0 2rem 4rem;
+    padding: 0 2.5rem 6rem;
     color: #fff;
+    max-width: 1400px;
+    margin: 0 auto;
   }
-
-  .page-header {
-    padding-top: 16vh;
-    margin-bottom: 2.5rem;
-  }
+  .page-header { padding-top: 16vh; margin-bottom: 3rem; }
 
   .page-title {
     font-family: 'Noto Sans SC', sans-serif;
     font-size: clamp(1.8rem, 5vw, 3.2rem);
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: #fff;
-    text-shadow: 0 0 80px rgba(79, 119, 45, 0.5);
+    font-weight: 700; letter-spacing: 0.04em; color: #fff;
+    text-shadow: 0 0 80px rgba(79,119,45,0.5);
   }
-
   .page-sub {
     margin-top: 0.7rem;
     font-family: 'Noto Sans SC', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 400;
-    letter-spacing: 0.1em;
-    color: rgba(236, 243, 158, 0.6);
+    font-size: 0.9rem; font-weight: 400; letter-spacing: 0.1em;
+    color: rgba(236,243,158,0.6);
   }
 
-  /*
-    ===== 瀑布流图片网格 =====
-    columns: 最小列宽 280px，自动计算列数（最多约 3-4 列）
-    column-gap: 列间距
-  */
-  .photo-grid {
-    columns: 3 280px;
-    column-gap: 1.2rem;
+  /* ── 相册网格 ─────────────────────────────── */
+  .album-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
   }
 
-  /*
-    每张照片的容器
-    break-inside: avoid → 防止图片被列边界截断
-  */
-  .photo-item {
-    break-inside: avoid;
-    margin-bottom: 1.2rem;
-    border-radius: 12px;
-    overflow: hidden;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    transition:
-      transform  0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-      box-shadow 0.35s ease;
+  .album-card {
+    display: block; text-decoration: none; color: inherit;
+    border-radius: 16px; overflow: hidden;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.4s;
+    cursor: pointer;
+  }
+  .album-card:hover {
+    transform: translateY(-10px) scale(1.015);
+    box-shadow: 0 28px 70px rgba(79,119,45,0.45);
   }
 
-  .photo-item:hover {
-    transform: translateY(-5px) scale(1.01);
-    box-shadow: 0 16px 40px rgba(79, 119, 45, 0.38);
+  .album-cover {
+    position: relative; aspect-ratio: 4/3;
+    overflow: hidden; background: rgba(0,0,0,0.3);
   }
-
-  /* 图片自适应宽度，保持原始比例 */
-  .photo-item img {
-    width: 100%;
-    height: auto;
-    display: block;
+  .album-cover img {
+    width: 100%; height: 100%; display: block;
     object-fit: cover;
+    transition: transform 0.7s ease;
+  }
+  .album-card:hover .album-cover img { transform: scale(1.07); }
+
+  .album-cover-ph {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%; font-size: 3rem; opacity: 0.25;
   }
 
-  /* 可选图片说明文字 */
-  .photo-item figcaption {
-    padding: 0.6rem 0.9rem 0.75rem;
+  .album-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(
+      160deg,
+      transparent 0%,
+      rgba(0,0,0,0.08) 50%,
+      rgba(0,0,0,0.7) 100%
+    );
+    display: flex; flex-direction: column;
+    justify-content: space-between; padding: 1rem 1.2rem;
+  }
+
+  .album-count {
+    align-self: flex-end;
+    background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: rgba(255,255,255,0.85); padding: 0.22rem 0.65rem;
+    border-radius: 100px; font-size: 0.72rem; letter-spacing: 0.08em;
+    border: 1px solid rgba(255,255,255,0.15);
     font-family: 'Noto Sans SC', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    color: rgba(236, 243, 158, 0.55);
   }
 
-  /* 暂无内容时的占位提示 */
+  .album-overlay-bottom { display: flex; flex-direction: column; gap: 0.15rem; }
+
+  .album-date, .album-addr {
+    font-size: 0.76rem; color: rgba(255,255,255,0.82);
+    letter-spacing: 0.05em; text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+
+  .album-foot { padding: 1rem 1.2rem 1.35rem; }
+
+  .album-title {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 1.1rem; font-weight: 600; letter-spacing: 0.04em;
+    color: #fff; margin-bottom: 0.35rem;
+  }
+  .album-tagline {
+    font-family: 'Playfair Display', serif;
+    font-style: italic; font-size: 0.8rem;
+    color: rgba(236,243,158,0.55); letter-spacing: 0.04em; line-height: 1.5;
+  }
+
   .empty-state {
-    column-span: all;
-    text-align: center;
-    padding: 4rem 2rem;
+    grid-column: 1 / -1; text-align: center; padding: 5rem 2rem;
     color: rgba(255,255,255,0.3);
     font-family: 'Noto Sans SC', sans-serif;
-    font-size: 0.9rem;
-    letter-spacing: 0.1em;
+    font-size: 0.9rem; letter-spacing: 0.1em;
   }
+  .empty-icon { display: block; font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
 
-  .empty-icon {
-    display: block;
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
+  @media (max-width: 768px) {
+    .album-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
   }
-
   @media (max-width: 560px) {
-    .photo-grid  { columns: 2 160px; }
-    .page-header { padding-top: 12vh; }
+    .page-content { padding: 0 1.2rem 4rem; }
+    .page-header  { padding-top: 12vh; }
+    .album-grid   { grid-template-columns: 1fr; gap: 1.2rem; }
   }
 </style>
 
 <script>
-  /* 分层渐显：页面加载后立即按层级依次触发 */
-  function show(selector: string, delay: number) {
-    setTimeout(() => {
-      document.querySelector(selector)?.classList.add('visible');
-    }, delay);
+  function show(sel: string, delay: number) {
+    setTimeout(() => document.querySelector(sel)?.classList.add('visible'), delay);
   }
-
   show('#topnav', 0);
   show('#title',  40);
   show('#sub',    80);
