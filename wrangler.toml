@@ -1,1 +1,5 @@
 compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./dist"           # Astro 构建输出的目录
+upload_rules = { glob = "**/*" } # 上传所有文件
